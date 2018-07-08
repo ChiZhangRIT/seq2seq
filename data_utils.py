@@ -28,6 +28,9 @@ _WORD_SPLIT = re.compile(b"([.,!?\"':;)(])")
 _DIGIT_RE = re.compile(br"\d")
 
 
+def color_print(string=None):
+    print('\x1b[1;33;40m' + string + '\x1b[0m')
+
 def basic_tokenizer(sentence):
     """Very basic tokenizer: split the sentence into a list of tokens."""
     words = []
@@ -44,14 +47,14 @@ def basic_tokenizer(sentence):
 
 def create_vocabulary(vocabulary_path, data_path, max_vocabulary_size, tokenizer=None, normalize_digits=True):
     if not gfile.Exists(vocabulary_path):
-        print("Creating vocabulary %s from %s" % (vocabulary_path, data_path))
+        color_print("Creating vocabulary %s from %s" % (vocabulary_path, data_path))
         vocab = {}
         with gfile.GFile(data_path, mode="rb") as f:
             counter = 0
             for line in f:
                 counter += 1
                 if counter % 100000 == 0:
-                    print("  processing line %d" % counter)
+                    color_print("  processing line %d" % counter)
                 tokens = tokenizer(line) if tokenizer else basic_tokenizer(line)
                 for w in tokens:
                     word = re.sub(_DIGIT_RE, b"0", w) if normalize_digits else w
@@ -60,7 +63,7 @@ def create_vocabulary(vocabulary_path, data_path, max_vocabulary_size, tokenizer
                     else:
                         vocab[word] = 1
             vocab_list = _START_VOCAB + sorted(vocab, key=vocab.get, reverse=True)
-            print('>> Full Vocabulary Size :',len(vocab_list))
+            color_print('>> Full Vocabulary Size :',len(vocab_list))
             if len(vocab_list) > max_vocabulary_size:
                 vocab_list = vocab_list[:max_vocabulary_size]
             with gfile.GFile(vocabulary_path, mode="wb") as vocab_file:
@@ -92,7 +95,7 @@ def sentence_to_token_ids(sentence, vocabulary, tokenizer=None, normalize_digits
 
 def data_to_token_ids(data_path, target_path, vocabulary_path, tokenizer=None, normalize_digits=True):
     if not gfile.Exists(target_path):
-        print("Tokenizing data in %s" % data_path)
+        color_print("Tokenizing data in %s" % data_path)
         vocab, _ = initialize_vocabulary(vocabulary_path)
         with gfile.GFile(data_path, mode="rb") as data_file:
             with gfile.GFile(target_path, mode="w") as tokens_file:
@@ -100,7 +103,7 @@ def data_to_token_ids(data_path, target_path, vocabulary_path, tokenizer=None, n
                 for line in data_file:
                     counter += 1
                     if counter % 100000 == 0:
-                        print("  tokenizing line %d" % counter)
+                        color_print("  tokenizing line %d" % counter)
                     token_ids = sentence_to_token_ids(line, vocab, tokenizer, normalize_digits)
                     tokens_file.write(" ".join([str(tok) for tok in token_ids]) + "\n")
 

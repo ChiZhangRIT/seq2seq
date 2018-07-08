@@ -2,3 +2,5 @@
 *.pkl
 *.npy
 
+model/
+log/

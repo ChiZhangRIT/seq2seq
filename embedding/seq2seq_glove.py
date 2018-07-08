@@ -221,9 +221,7 @@ def embedding_attention_seq2seq(encoder_inputs, decoder_inputs, cell, num_encode
         dtype = scope.dtype
 
         # Encoder
-        pdb.set_trace()
         encoder_cell = copy.deepcopy(cell)
-        pdb.set_trace()
         init = tf.constant(np.load(pretrained_embedding_path))  # use glove
         encoder_cell = rnn_cell.EmbeddingWrapper(encoder_cell, 
                                                 embedding_classes=num_encoder_symbols,
